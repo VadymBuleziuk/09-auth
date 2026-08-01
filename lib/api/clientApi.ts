@@ -87,7 +87,7 @@ export const deleteNote = async (idNote: string): Promise<Note> => {
 };
 
 export const updateMe = async (payload: UpdateUserRequest) => {
-  const res = await nextServer.put<User>("/users/me", payload);
+  const res = await nextServer.patch<User>("/users/me", payload);
   return res.data;
 };
 

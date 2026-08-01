@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 export default function EditProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [userName, setUserName] = useState("");
   useEffect(() => {
     const fetchUser = async () => {
       const currentUser = await getMe();
@@ -18,11 +19,9 @@ export default function EditProfilePage() {
 
     fetchUser();
   }, []);
-  const [userName, setUserName] = useState("");
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUserName(event.target.value);
-    router.push("/profile");
   };
 
   const handleSaveUser = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -30,7 +29,9 @@ export default function EditProfilePage() {
     await updateMe({ userName });
     router.push("/profile");
   };
-
+  const handleCancel = () => {
+    router.push("/profile");
+  };
   return (
     <main className={css.mainContent}>
       <div className={css.profileCard}>
@@ -61,7 +62,11 @@ export default function EditProfilePage() {
             <button type="submit" className={css.saveButton}>
               Save
             </button>
-            <button type="button" className={css.cancelButton}>
+            <button
+              type="button"
+              className={css.cancelButton}
+              onClick={handleCancel}
+            >
               Cancel
             </button>
           </div>

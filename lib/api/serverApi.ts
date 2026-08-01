@@ -20,7 +20,14 @@ export const checkServerSession = async () => {
 };
 
 export const getMe = async () => {
-  const { data } = await nextServer.get<User>("/users/me");
+  const cookieStore = await cookies();
+
+  const { data } = await nextServer.get<User>("/users/me", {
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
+  });
+
   return data;
 };
 export const fetchNotes = async (
