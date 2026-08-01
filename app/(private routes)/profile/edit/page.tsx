@@ -6,27 +6,31 @@ import { getMe } from "@/lib/api/clientApi";
 import { updateMe } from "@/lib/api/clientApi";
 import { User } from "@/types/user";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [userName, setUserName] = useState("");
+  const { setUser } = useAuthStore();
+  const [user, setUserState] = useState<User | null>(null);
+  const [username, setUsername] = useState("");
   useEffect(() => {
     const fetchUser = async () => {
       const currentUser = await getMe();
-      setUser(currentUser);
+      setUserState(currentUser);
+      setUsername(currentUser.username);
     };
 
     fetchUser();
   }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUserName(event.target.value);
+    setUsername(event.target.value);
   };
 
   const handleSaveUser = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await updateMe({ userName });
+    const updatedUser = await updateMe({ username });
+    setUser(updatedUser);
     router.push("/profile");
   };
   const handleCancel = () => {
@@ -52,6 +56,7 @@ export default function EditProfilePage() {
               id="username"
               type="text"
               className={css.input}
+              value={username}
               onChange={handleChange}
             />
           </div>

@@ -6,6 +6,7 @@ export interface NoteResponse {
   notes: Note[];
   totalPages: number;
 }
+
 export interface RegisterRequest {
   email: string;
   password: string;
@@ -21,14 +22,41 @@ type CheckSessionRequest = {
 };
 
 export type UpdateUserRequest = {
-  userName?: string;
+  username?: string;
 };
 
-const BASE_URL = "https://notehub-api.goit.study";
+// Auth
+
 export const register = async (data: RegisterRequest) => {
   const res = await nextServer.post<User>("/auth/register", data);
   return res.data;
 };
+
+export const login = async (data: LoginRequest) => {
+  const res = await nextServer.post<User>("/auth/login", data);
+  return res.data;
+};
+
+export const logout = async (): Promise<void> => {
+  await nextServer.post("/auth/logout");
+};
+
+export const checkSession = async () => {
+  const res = await nextServer.get<CheckSessionRequest>("/auth/session");
+  return res.data.success;
+};
+
+export const getMe = async () => {
+  const { data } = await nextServer.get<User>("/users/me");
+  return data;
+};
+
+export const updateMe = async (payload: UpdateUserRequest) => {
+  const { data } = await nextServer.patch<User>("/users/me", payload);
+  return data;
+};
+
+// Notes
 
 export const fetchNotes = async (
   search: string,
@@ -36,73 +64,32 @@ export const fetchNotes = async (
   perPage: number,
   tag?: string,
 ): Promise<NoteResponse> => {
-  const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
-
-  const response = await nextServer.get<NoteResponse>(BASE_URL, {
+  const { data } = await nextServer.get<NoteResponse>("/notes", {
     params: {
       search,
       page,
       perPage,
       tag,
     },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
-  console.log("NOTES RESPONSE", response.data);
 
-  return response.data;
+  return data;
 };
 
 export const fetchNoteById = async (idNote: string): Promise<Note> => {
-  const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
-  const response = await nextServer.get<Note>(`${BASE_URL}/${idNote}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.data;
+  const { data } = await nextServer.get<Note>(`/notes/${idNote}`);
+
+  return data;
 };
 
 export const createNote = async (noteData: NewNote): Promise<Note> => {
-  const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
-  console.log("TOKEN:", token);
-  const response = await nextServer.post<Note>(BASE_URL, noteData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const { data } = await nextServer.post<Note>("/notes", noteData);
 
-  return response.data;
+  return data;
 };
 
 export const deleteNote = async (idNote: string): Promise<Note> => {
-  const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
-  const response = await nextServer.delete<Note>(`${BASE_URL}/${idNote}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.data;
-};
+  const { data } = await nextServer.delete<Note>(`/notes/${idNote}`);
 
-export const updateMe = async (payload: UpdateUserRequest) => {
-  const res = await nextServer.patch<User>("/users/me", payload);
-  return res.data;
-};
-
-export const logout = async (): Promise<void> => {
-  await nextServer.post("/auth/logout");
-};
-export const checkSession = async () => {
-  const res = await nextServer.get<CheckSessionRequest>("/auth/session");
-  return res.data.success;
-};
-export const getMe = async () => {
-  const { data } = await nextServer.get<User>("/users/me");
   return data;
-};
-export const login = async (data: LoginRequest) => {
-  const res = await nextServer.post<User>("/auth/login", data);
-  return res.data;
 };
